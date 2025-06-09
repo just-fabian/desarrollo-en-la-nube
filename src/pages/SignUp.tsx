@@ -10,8 +10,6 @@ import {
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
-  linkWithCredential,
-  EmailAuthProvider,
 } from "firebase/auth";
 import {
   auth,
@@ -43,10 +41,6 @@ export default function Signup() {
         auth,
         provider === "google" ? googleProvider : facebookProvider
       );
-      if (auth.currentUser && email && password) {
-        const credential = EmailAuthProvider.credential(email, password);
-        await linkWithCredential(auth.currentUser, credential);
-      }
       navigate(PageRoutes.PROFILE);
     } catch (err: any) {
       setError(err.message);
