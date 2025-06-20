@@ -1,12 +1,13 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
 import { PageRoutes } from "../utils/pageRoutes";
+import { Person } from "@mui/icons-material";
 
 export default function Header() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -20,7 +21,7 @@ export default function Header() {
         <Typography
           variant="h6"
           component={Link}
-          to="/"
+          to={PageRoutes.HOME}
           sx={{ textDecoration: "none", color: "inherit" }}
         >
           FabianApp
@@ -29,22 +30,27 @@ export default function Header() {
         <Box>
           {!user ? (
             <>
-              <Button color="inherit" component={Link} to="/login">
+              <Button color="inherit" component={Link} to={PageRoutes.LOGIN}>
                 Login
               </Button>
-              <Button color="inherit" component={Link} to="/signup">
+              <Button color="inherit" component={Link} to={PageRoutes.SIGNUP}>
                 Sign Up
               </Button>
             </>
           ) : (
-            <>
-              <Typography variant="body1" component="span" sx={{ mr: 2 }}>
-                {user.email}
-              </Typography>
+            <Box display="flex" alignItems="center">
+              <NavLink to={PageRoutes.PROFILE}>
+                <Box display="flex" alignItems="center">
+                  <Person sx={{ mr: 1 }} />
+                  <Typography variant="body1" component="span" sx={{ mr: 2 }}>
+                    {userProfile?.name.split(" ")[0]}
+                  </Typography>
+                </Box>
+              </NavLink>
               <Button color="inherit" onClick={handleLogout}>
                 Logout
               </Button>
-            </>
+            </Box>
           )}
         </Box>
       </Toolbar>

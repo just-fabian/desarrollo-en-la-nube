@@ -1,5 +1,6 @@
 export enum PageRoutes {
-    LOGIN = "/login",
-    SIGNUP = "/signup",
-    PROFILE = "/profile"
+  HOME = "/",
+  LOGIN = "/login",
+  SIGNUP = "/signup",
+  PROFILE = "/profile",
 }
