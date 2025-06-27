@@ -14,6 +14,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../services/firebaseConfig";
 import { PageRoutes } from "../../utils/pageRoutes";
 import { Post, UserProfile } from "../../utils/types";
+import LikeButton from "../button/LikeButtont";
 
 interface PostCardProps {
   post: Post;
@@ -83,6 +84,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, isOwnProfile }) => {
         >
           {new Date(post.createdAt?.seconds * 1000).toLocaleString()}
         </Typography>
+
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>
+          <LikeButton postId={post.id} postOwnerId={post.uid} />
+        </Stack>
       </CardContent>
     </Card>
   );

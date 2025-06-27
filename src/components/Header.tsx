@@ -5,6 +5,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
 import { PageRoutes } from "../utils/pageRoutes";
 import { Person } from "@mui/icons-material";
+import NotificationIcon from "./icon/NotificationIcon";
 
 export default function Header() {
   const { user, userProfile } = useAuth();
@@ -16,7 +17,7 @@ export default function Header() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="fixed">
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Typography
           variant="h6"
@@ -39,6 +40,7 @@ export default function Header() {
             </>
           ) : (
             <Box display="flex" alignItems="center">
+              <NotificationIcon />
               <NavLink to={PageRoutes.PROFILE}>
                 <Box display="flex" alignItems="center">
                   <Person sx={{ mr: 1 }} />

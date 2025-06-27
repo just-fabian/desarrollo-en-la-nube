@@ -16,3 +16,12 @@ export interface Post {
   imageUrl: string;
   createdAt: Timestamp;
 }
+
+export interface Notification {
+  id: string;
+  userId: string;
+  message: string;
+  postId: string;
+  isRead: boolean;
+  createdAt: Timestamp;
+}
