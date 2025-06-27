@@ -36,7 +36,7 @@ const PostList: React.FC<PostListProps> = ({ uid }) => {
 
       if (uid) {
         q = query(q, where("uid", "==", uid));
-      } else {
+      } else if(user?.uid) {
         q = query(q, where("uid", "!=", user?.uid));
       }
 

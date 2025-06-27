@@ -13,5 +13,6 @@ export interface Post {
   id: string;
   uid: string;
   content: string;
+  imageUrl: string;
   createdAt: Timestamp;
 }

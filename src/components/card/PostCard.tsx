@@ -6,6 +6,7 @@ import {
   Avatar,
   IconButton,
   Stack,
+  Box,
 } from "@mui/material";
 import { Person, MoreHoriz } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -65,6 +66,15 @@ const PostCard: React.FC<PostCardProps> = ({ post, isOwnProfile }) => {
         <Typography variant="h6" sx={{ mt: 2, fontWeight: 400 }}>
           {post.content}
         </Typography>
+
+        {post.imageUrl && (
+          <Box
+            component="img"
+            src={post.imageUrl}
+            alt="Post image"
+            sx={{ width: "100%", height: "auto", mt: 2 }}
+          />
+        )}
 
         <Typography
           variant="caption"
