@@ -24,6 +24,7 @@ import { Link, useNavigate } from "react-router-dom";
 import SignupForm from "../components/form/SignUpForm";
 import { saveUserProfile, UserProfile } from "../services/saveUserProfile";
 import { Timestamp } from "firebase/firestore";
+import { saveFcmTokenForUser } from "../services/fcmService";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -69,6 +70,8 @@ export default function Signup() {
         password
       );
       await createProfile(userCredential.user.uid, email);
+      await saveFcmTokenForUser(userCredential.user.uid);
+
       navigate(PageRoutes.PROFILE);
     } catch (err: any) {
       setError(err.message);
@@ -94,6 +97,7 @@ export default function Signup() {
       }
 
       await createProfile(user.uid, user.email ?? "");
+      await saveFcmTokenForUser(user.uid);
       navigate(PageRoutes.PROFILE);
     } catch (err: any) {
       setError(err.message);

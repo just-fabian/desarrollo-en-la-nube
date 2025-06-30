@@ -18,44 +18,52 @@ import {
   where,
   orderBy,
   onSnapshot,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 
 const NotificationIcon = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [notificationDocs, setNotificationDocs] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
-    const fetchNotifications = () => {
-      if (!user) return;
+    if (!user) return;
 
-      const q = query(
-        collection(db, "notifications"),
-        where("userId", "==", user.uid),
-        where("isRead", "==", false),
-        orderBy("createdAt", "desc")
-      );
+    const q = query(
+      collection(db, "notifications"),
+      where("userId", "==", user.uid),
+      where("isRead", "==", false),
+      orderBy("createdAt", "desc")
+    );
 
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const notificationsData = querySnapshot.docs.map((doc) => doc.data());
-        setNotifications(notificationsData);
-        setUnreadCount(notificationsData.length);
-      });
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const data = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setNotifications(data);
+      setNotificationDocs(querySnapshot.docs);
+      setUnreadCount(data.length);
+    });
 
-      return unsubscribe;
-    };
-
-    fetchNotifications();
+    return unsubscribe;
   }, [user]);
 
-  const handleNotificationClick = () => {
+  const handleNotificationClick = async () => {
     setOpenModal(true);
-    setUnreadCount(0)
+    setUnreadCount(0);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = async () => {
     setOpenModal(false);
+
+    const batchUpdate = notificationDocs.map((docSnap) =>
+      updateDoc(doc(db, "notifications", docSnap.id), { isRead: true })
+    );
+    await Promise.all(batchUpdate);
   };
 
   return (

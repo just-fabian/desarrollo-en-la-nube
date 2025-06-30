@@ -7,10 +7,7 @@ import {
   Stack,
   Divider,
 } from "@mui/material";
-import {
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import {
   auth,
   googleProvider,
@@ -19,6 +16,7 @@ import {
 import { Link } from "react-router-dom";
 import { PageRoutes } from "../utils/pageRoutes";
 import { useNavigate } from "react-router-dom";
+import { saveFcmTokenForUser } from "../services/fcmService";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -29,7 +27,8 @@ export default function Login() {
 
   const handleEmailLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      await saveFcmTokenForUser(response.user.uid);
       navigate(PageRoutes.PROFILE);
     } catch (err: any) {
       setError(err.message);
@@ -38,10 +37,11 @@ export default function Login() {
 
   const handleProviderLogin = async (provider: "google" | "facebook") => {
     try {
-      await signInWithPopup(
+      const response = await signInWithPopup(
         auth,
         provider === "google" ? googleProvider : facebookProvider
       );
+      await saveFcmTokenForUser(response.user.uid);
       navigate(PageRoutes.PROFILE);
     } catch (err: any) {
       setError(err.message);

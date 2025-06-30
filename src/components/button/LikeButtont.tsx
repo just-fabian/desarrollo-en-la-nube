@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Dialog,
@@ -10,7 +10,16 @@ import {
 } from "@mui/material";
 import { ThumbUp } from "@mui/icons-material";
 import { db } from "../../services/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  serverTimestamp,
+  doc,
+} from "firebase/firestore";
 import { useAuth } from "../../context/AuthContext";
 import { PageRoutes } from "../../utils/pageRoutes";
 import { useNavigate } from "react-router-dom";
@@ -24,34 +33,59 @@ const LikeButton = ({
 }) => {
   const { userProfile } = useAuth();
   const [liked, setLiked] = useState(false);
+  const [likeDocId, setLikeDocId] = useState<string | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleLike = async () => {
+  useEffect(() => {
+    const checkIfLiked = async () => {
+      if (!userProfile) return;
+
+      const q = query(
+        collection(db, "likes"),
+        where("postId", "==", postId),
+        where("fromUid", "==", userProfile.uid),
+        where("action", "==", "like")
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        setLiked(true);
+        setLikeDocId(querySnapshot.docs[0].id);
+      } else {
+        setLiked(false);
+        setLikeDocId(null);
+      }
+    };
+
+    checkIfLiked();
+  }, [postId, userProfile]);
+
+  const handleLikeToggle = async () => {
     if (!userProfile) {
       setOpenDialog(true);
       return;
     }
 
     try {
-      if (!liked) {
-        const message = `${userProfile.name} liked your post`;
-
-        await addDoc(collection(db, "notifications"), {
-          userId: postOwnerId,
-          message,
+      if (liked && likeDocId) {
+        await deleteDoc(doc(db, "likes", likeDocId));
+        setLiked(false);
+        setLikeDocId(null);
+      } else {
+        const newLikeRef = await addDoc(collection(db, "likes"), {
           postId,
-          isRead: false,
+          fromUid: userProfile.uid,
+          toUid: postOwnerId,
+          action: "like",
           createdAt: serverTimestamp(),
         });
-
         setLiked(true);
-      } else {
-        console.log("Already liked!");
+        setLikeDocId(newLikeRef.id);
       }
     } catch (error) {
-      console.error("Error adding notification: ", error);
+      console.error("Error toggling like: ", error);
     }
   };
 
@@ -67,7 +101,7 @@ const LikeButton = ({
   return (
     <div>
       <IconButton
-        onClick={handleLike}
+        onClick={handleLikeToggle}
         sx={{
           color: liked ? "blue" : "gray",
           "&:hover": {
